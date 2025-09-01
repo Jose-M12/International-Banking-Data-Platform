@@ -1,0 +1,4 @@
+currency,fx_date,rate_to_usd
+MXN,{{ var('d_minus_2') }},0.058
+MXN,{{ var('d_minus_1') }},0.059
+MXN,{{ var('today') }},0.060

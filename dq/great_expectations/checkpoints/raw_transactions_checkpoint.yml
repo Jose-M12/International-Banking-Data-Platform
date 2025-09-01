@@ -1,0 +1,12 @@
+name: raw_transactions_checkpoint
+config_version: 1.0
+class_name: SimpleCheckpoint
+validations:
+  - batch_request:
+      datasource_name: bq_raw
+      data_asset_name: "raw.transactions"
+      runtime_parameters:
+        query: "SELECT * FROM `YOUR_PROJECT.raw.transactions` WHERE ingestion_date = CURRENT_DATE()"
+      batch_identifiers:
+        default_identifier_name: "today"
+    expectation_suite_name: raw_transactions_suite

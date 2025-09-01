@@ -1,0 +1,27 @@
+# Environments
+.env
+.venv
+
+# Secrets
+keys/
+
+# Python
+__pycache__/
+*.pyc
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# dbt
+logs/
+dbt_packages/
+target/
+
+# Great Expectations
+uncommitted/
+
+# Docker
+mysql_mx_data/
+superset_home/

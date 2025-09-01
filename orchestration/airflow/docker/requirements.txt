@@ -1,0 +1,9 @@
+google-cloud-bigquery
+google-cloud-storage
+dbt-bigquery==1.7.14
+pandas
+sqlalchemy
+pymysql
+great_expectations
+openlineage-airflow==1.20.0
+pyarrow

@@ -1,0 +1,23 @@
+config_version: 3
+datasources:
+  bq_raw:
+    class_name: Datasource
+    execution_engine:
+      class_name: SqlAlchemyExecutionEngine
+      connection_string: bigquery://{{YOUR_PROJECT}}
+    data_connectors:
+      default_runtime_data_connector_name:
+        class_name: RuntimeDataConnector
+        batch_identifiers: ["default_identifier_name"]
+stores:
+  expectations_store:
+    class_name: ExpectationsStore
+    store_backend:
+      class_name: InMemoryStoreBackend
+  validations_store:
+    class_name: ValidationsStore
+    store_backend:
+      class_name: InMemoryStoreBackend
+checkpoint_store_name: validations_store
+data_docs_sites: {}
+config_variables_file_path: uncommitted/config_variables.yml

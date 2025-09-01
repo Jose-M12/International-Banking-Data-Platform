@@ -1,0 +1,75 @@
+version: "3.9"
+services:
+  mysql-mx:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: bank_mx
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./ingestion/data_generator:/seed
+      - mysql_mx_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -pexample"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  airflow-webserver:
+    build:
+      context: ./orchestration/airflow/docker
+      dockerfile: Dockerfile
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__WEBSERVER__RBAC: "true"
+      GOOGLE_APPLICATION_CREDENTIALS: /keys/sa.json
+      AIRFLOW__LINEAGE__BACKEND: airflow.providers.openlineage.lineage_backend.OpenLineageBackend
+      OPENLINEAGE_URL: http://marquez:5000
+      OPENLINEAGE_NAMESPACE: ibdp-dev
+    volumes:
+      - ./orchestration/airflow/dags:/opt/airflow/dags
+      - ./keys:/keys:ro
+    ports:
+      - "8080:8080"
+    command: webserver
+    depends_on:
+      - airflow-scheduler
+      - mysql-mx
+
+  airflow-scheduler:
+    build:
+      context: ./orchestration/airflow/docker
+      dockerfile: Dockerfile
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      GOOGLE_APPLICATION_CREDENTIALS: /keys/sa.json
+    volumes:
+      - ./orchestration/airflow/dags:/opt/airflow/dags
+      - ./keys:/keys:ro
+    command: scheduler
+    depends_on:
+      - mysql-mx
+
+  superset:
+    build:
+      context: ./analytics/superset
+    environment:
+      SUPERSET_SECRET_KEY: "changeme"
+      GOOGLE_APPLICATION_CREDENTIALS: /keys/sa.json
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./keys:/keys:ro
+      - superset_home:/app/superset_home
+
+  marquez:
+    image: marquezproject/marquez:0.48.0
+    environment:
+      MARQUEZ_PORT: 5000
+    ports: ["5000:5000", "3000:3000"]
+    command: ["--web-allow-origin", "*"]
+
+volumes:
+  mysql_mx_data:
+  superset_home:

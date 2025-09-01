@@ -1,0 +1,22 @@
+name: "intl_bq"
+version: "1.0.0"
+profile: "intl_bq"
+models:
+  intl_bq:
+    +materialized: view
+    bronze:
+      +schema: raw
+    silver:
+      +schema: silver
+    gold:
+      +schema: gold
+    ref:
+      +schema: ref
+seeds:
+  intl_bq:
+    +schema: ref
+    fx_rates:
+      +column_types:
+        currency: string
+        fx_date: date
+        rate_to_usd: float64

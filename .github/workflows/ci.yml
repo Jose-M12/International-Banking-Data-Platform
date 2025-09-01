@@ -1,0 +1,23 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.10" }
+      - name: Install deps
+        run: pip install dbt-bigquery apache-airflow==2.9.3 ruff black
+      - name: Lint
+        run: ruff . && black --check .
+      - name: dbt compile+test
+        env:
+          DBT_ENV_SECRET_GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+        run: |
+          cd transformations/dbt
+          dbt deps
+          dbt compile
+          dbt test --profiles-dir .
+      - name: Validate DAGs
+        run: python -m compileall orchestration/airflow/dags

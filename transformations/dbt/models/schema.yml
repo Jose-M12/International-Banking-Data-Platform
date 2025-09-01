@@ -1,0 +1,17 @@
+version: 2
+sources:
+  - name: raw
+    tables:
+      - name: transactions
+models:
+  - name: silver_transactions
+    tests:
+      - not_null:
+          column_name: txn_id
+      - relationships:
+          to: ref('dim_account')
+          field: account_id
+  - name: intl_transactions_fact
+    tests:
+      - unique:
+          column_name: txn_id

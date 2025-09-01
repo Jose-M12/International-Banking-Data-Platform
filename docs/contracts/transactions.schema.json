@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "transactions",
+  "type": "object",
+  "required": ["txn_id","account_id","customer_id","txn_ts_local","amount_local","currency","market"],
+  "properties": {
+    "txn_id": {"type":"string"},
+    "account_id": {"type":"string"},
+    "customer_id": {"type":"string"},
+    "txn_ts_local": {"type":"string", "format":"date-time"},
+    "amount_local": {"type":"number"},
+    "currency": {"type":"string", "enum":["USD","MXN","COP","PEN"]},
+    "market": {"type":"string", "enum":["MX","CO","PE"]},
+    "mcc": {"type":["string","null"]},
+    "channel": {"type":["string","null"]}
+  }
+}
