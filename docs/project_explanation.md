@@ -104,6 +104,42 @@ The data model is divided into three layers: Bronze, Silver, and Gold.
 1.  An Airflow DAG runs a Spark job on Dataproc to compute complex features from the Silver layer data.
 2.  The features are written to a new table in the Gold layer.
 
+## Code Explanation
+
+### On-Prem Simulation (Docker)
+
+- **`docker-compose.yml`:** This file defines the services that make up the on-prem simulation. It includes:
+    - `mysql-mx`: A MySQL database for the Mexican market.
+    - `airflow-webserver`: The Airflow webserver.
+    - `airflow-scheduler`: The Airflow scheduler.
+    - `superset`: The Superset analytics platform.
+    - `marquez`: The Marquez data lineage tool.
+
+### Orchestration (Airflow)
+
+- **`orchestration/airflow/docker/Dockerfile`:** This file defines the Docker image for the Airflow webserver and scheduler. It installs the necessary dependencies, including the GCP providers for Airflow.
+- **`orchestration/airflow/docker/requirements.txt`:** This file lists the Python dependencies that are installed in the Airflow Docker image.
+- **`orchestration/airflow/dags/intl_batch_pipeline.py`:** This is the main Airflow DAG that orchestrates the batch pipeline. It performs the following steps:
+    1.  `extract_mx`: Extracts data from the MySQL database for the Mexican market and uploads it to GCS.
+    2.  `load_raw_txn`: Loads the raw transaction data from GCS into BigQuery.
+    3.  `dq_check`: Runs data quality checks on the raw data using Great Expectations.
+    4.  `dbt_run`: Runs the dbt models to transform the data.
+    5.  `dbt_test`: Runs the dbt tests to ensure the data quality.
+- **`orchestration/airflow/dags/scripts/extract_mysql_to_gcs.py`:** This Python script is called by the `extract_mx` task in the Airflow DAG. It connects to the MySQL database, extracts the data for a given market, and uploads it to GCS as a CSV file.
+
+### Transformation (dbt)
+
+- **`transformations/dbt/dbt_project.yml`:** This file is the main configuration file for the dbt project. It defines the project name, the profile to use, and the paths to the model, seed, and test files.
+- **`transformations/dbt/models/`:** This directory contains the dbt models that are used to transform the data. The models are organized into subdirectories for the bronze, silver, and gold layers.
+
+### Data Generation
+
+- **`ingestion/data_generator/seed_mysql.py`:** This Python script is used to generate synthetic data and seed the MySQL databases. It uses the `Faker` library to generate realistic data.
+
+### Infrastructure as Code (Terraform)
+
+- **`infra/terraform/`:** This directory contains the Terraform code that is used to provision and manage the GCP infrastructure. The code is organized into modules for the different GCP services (e.g., BigQuery, GCS, Dataproc).
+
 ## Configuration
 
 ### What You Can Change
